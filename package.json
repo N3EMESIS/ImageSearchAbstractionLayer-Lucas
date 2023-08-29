@@ -1,40 +1,27 @@
 {
-  "name": "image-search-abstraction-layer",
+  "name": "imagesearchabstractionlayer-lucas",
   "version": "1.0.0",
-  "description": "Image Search Abstractio Layer (FreeCodeCamp Project)",
+  "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "client": "cd client && yarn start",
-    "server": "nodemon server.js",
-    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rifkegribenes/image-search-abstraction-layer.git"
-  },
-  "author": "Sarah Schneider",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rifkegribenes/image-search-abstraction-layer/issues"
-  },
-  "homepage": "https://github.com/rifkegribenes/image-search-abstraction-layer#readme",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "concurrently": "^3.5.1",
-    "cors": "^2.8.4",
-    "dotenv": "^4.0.0",
-    "es6-promise": "^4.2.2",
-    "express": "^4.16.2",
-    "isomorphic-fetch": "^2.2.1",
-    "mongoose": "^5.0.1",
-    "node-bing-api": "^3.2.2",
-    "path": "^0.12.7",
-    "pug": "^2.0.0-rc.4",
-    "request-promise": "^4.2.2",
-    "url": "^0.11.0"
+    "axios": "^1.5.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dns": "^0.2.2",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongodb": "^6.0.0",
+    "mongoose": "^7.4.5",
+    "node-bing-api": "^4.1.1",
+    "url": "^0.11.1"
   },
   "devDependencies": {
-    "concurrently": "^3.5.0"
+    "nodemon": "^3.0.1"
   }
 }

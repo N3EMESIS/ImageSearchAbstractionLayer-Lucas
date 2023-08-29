@@ -1,97 +1,55 @@
-// server.js
-
-/* ================== SETUP ================== */
-
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const http = require('http');
-const path = require('path');
-
-const search = require('./search');
 const searchTerm = require('./models/searchTerm');
+
+const searchImages = require('./resource/GoogleCustomSearch');
 
 app.use(bodyParser.json());
 app.use(cors());
 
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/searchTerms', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
-/* ================== DB CONNECTION ================== */
+// * Get all search terms from the database * //
 
-const MONGODB_URI = `mongodb://${process.env.USER}:${process.env.PASS}@${process.env.HOST}:${process.env.DB_PORT}/${process.env.DB}`;
-
-// connect to DB if running locally:
-// mongoose.connect('mongodb://localhost/searchTerms');
-
-// connect to mLab
-mongoose.connect(MONGODB_URI);
-
-mongoose.Promise = global.Promise;
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-/* ================== ROUTES ================== */
-
-// get all UNIQUE search terms stored in DB, sorted by most recent date
-app.get('/api/recent', (req, res, next) => {
-
-  searchTerm.aggregate(
-    [
-      { "$group": {
-        _id: "$searchVal",
-        doc: {$first: "$$ROOT"}
-      }},
-      { "$sort": { "searchDate": -1 } },
-    ],
-    (err, data) => {
-      if (err) {
-        console.log(err);
-        res.send(err);
-      }
-      console.log(data);
-      res.json(data);
+app.get('/api/recentsearchs', async (req, res, next) => {
+    try {
+        const data = await searchTerm.find().exec();
+        res.json(data);
+    } catch (err) {
+        console.error('Error al obtener los términos de búsqueda recientes:', err);
+        res.status(500).send('Error al obtener los términos de búsqueda recientes');
     }
-  );
 });
 
-// new image search
-app.get('/api/search/:searchVal*', (req, res, next) => {
+// * Get call with required and not required params to do a search for an image * //
 
-  const { searchVal } = req.params;
-  const { offset } = req.query;
+app.get('/api/imagesearch/:searchVal*', async (req, res, next) => {
+    var { searchVal } = req.params;
+    var { offset } = req.query;
 
-  const data = new searchTerm({
-    searchVal,
-    searchDate: new Date()
-  });
+    try {
+        const images = await searchImages(searchVal, 10);
 
-  data.save(err => {
-    if (err) {
-      console.log(`Error Saving to database: ${err}`);
+        const newSearchTerm = new searchTerm({
+            searchVal,
+            searchDate: new Date()
+        });
+        await newSearchTerm.save();
+        
+        res.json(images);
+    } catch(err) {
+        console.error('Error al guardar en la base de datos:', err);
+        res.status(500).send('Error al guardar en la base de datos');
     }
-  });
-
-  search(searchVal, offset, (data) => {
-    const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}`;
-    data.baseUrl = baseUrl;
-    res.json(data);
-  });
 });
 
-
-// set static path
-app.use(express.static(path.join(__dirname, '/client/build/')));
-
-app.get('/', (req, res) => {
-  console.log('root route, serving client');
-  res.status(200)
-    .sendFile(path.join(__dirname, '../client/build/index.html'));
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server is Running`);
 });
-
-const server = http.createServer(app);
-const port = process.env.PORT || 8080;
-app.set('port', port);
-server.listen(port, () => console.log(`Server listening on localhost:${port}`));
