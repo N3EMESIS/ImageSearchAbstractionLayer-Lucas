@@ -10,7 +10,8 @@ async function searchImages(query, numResults = 10) {
                 cx: process.env.SEARCH_ENGINE_ID,
                 q: query,
                 searchType: 'image',
-                num: numResults
+                num: numResults,
+                start: (offset - 1) * numResults + 1
             }
         });
 

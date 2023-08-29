@@ -35,14 +35,14 @@ app.get('/api/imagesearch/:searchVal*', async (req, res, next) => {
     var { offset } = req.query;
 
     try {
-        const images = await searchImages(searchVal, 10);
+        const images = await searchImages(searchVal, 10, offset);
 
         const newSearchTerm = new searchTerm({
             searchVal,
             searchDate: new Date()
         });
         await newSearchTerm.save();
-        
+
         res.json(images);
     } catch(err) {
         console.error('Error al guardar en la base de datos:', err);
